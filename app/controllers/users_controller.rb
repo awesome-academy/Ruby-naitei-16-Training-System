@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :load_user, except: %i(new create)
-  before_action :logged_in_user, only: %i(show edit update)
+  before_action :authenticate_user!, only: %i(show edit update)
   before_action :correct_user, only: %i(edit update)
   before_action :see_other_users, only: %i(show)
 
@@ -34,6 +34,11 @@ class UsersController < ApplicationController
   end
 
   def update
+    if params[:user][:password].blank?
+      params[:user].delete(:password)
+      params[:user].delete(:password_confirmation)
+    end
+
     if @user.update update_user_params
       flash[:success] = t ".profile_updated"
       redirect_to edit_user_path(current_user)
